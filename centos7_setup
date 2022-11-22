@@ -1,0 +1,67 @@
+--
+
+- hosts: all
+  become: yes
+  tasks:
+  - name: update all packages (like 'yum update')
+    ansible.builtin.yum:
+      name: "*"
+      state: latest
+  
+  - name: remove current version of python
+    ansible.builtin.yum:
+      name: "{{ packages }}"
+      state: absent
+    vars:
+      packages:
+      - python3
+
+  - name: Install a list of packages with a list variable
+    ansible.builtin.yum:
+      name: "{{ packages }}"
+      state: latest
+    vars:
+      packages:
+      - epel-release
+      - git
+      - "@Development tools"
+      - openssl-devel
+      - libffi-devel
+      - bzip2-devel
+      - wget
+      - python3
+
+    
+  - name: Creates user 'desudesu' and adds him to the wheel group
+    ansible.builtin.user:
+      name: desudesu
+      comment: DesuDesu
+      group: wheel
+      createhome: yes
+      generate_ssh_key: yes
+      ssh_key_bits: 4096
+      ssh_key_file: .ssh/id_rsa
+
+  - name: Create .vim directory 
+    ansible.builtin.file:
+      owner: desudesu
+      path: /home/desudesu/.vim
+      state: directory
+
+  - name: Create directory tree for vim
+    ansible.builtin.file:
+      owner: desudesu
+      path: "/home/desudesu/.vim/{{ item }}"
+      state: directory
+    with_items:
+      - autoload
+      - backup
+      - colors
+      - plugged
+    
+  - name: copy vim_config file as .vimrc to users home dir
+    ansible.builtin.get_url:
+      url: https://github.com/DesuDeus/ansible/blob/310e38443259f69ac3c4ab9ef4f5e60922ecdde5/vim_master_config
+      dest: /home/desudesu/.vimrc
+      owner: desudesu
+      mode: '0644'
