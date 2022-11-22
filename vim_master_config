@@ -1,0 +1,28 @@
+" vim configuration file"
+
+" Disable compatibility with vi which can cause unexpected issues."
+set nocompatible
+
+" Enable plugins and load plugin for the detected file type."
+filetype plugin on
+
+" Load an indent file for the dedicated file type"
+filetype indent on" 
+
+" syntax highlighting on" 
+syntax on
+
+" add line numbers"
+set number
+
+" set shift indentation to 2 columns"
+set shiftwidth=2
+
+" set tab width to 2 columns"
+set tabstop=2
+
+" use space chars instead of tabs"
+set expandtab
+
+" Do not let cursor scroll below or above N num of lines when scrolling."
+set scrolloff=10
