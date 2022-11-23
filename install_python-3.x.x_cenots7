@@ -1,0 +1,52 @@
+# version-0.1
+# simple playbok to install python on centos7
+# provide python version in the 'PYTHON' var
+# run 'ansible-playbook' with '--ask-become-pass' argument
+---
+
+- hosts: all
+  become: yes
+  gather_facts: false
+
+  vars:
+    PYTHON: "3.10.2"
+    build_dir: Python-{{ PYTHON }}
+
+  tasks:
+  - block:
+    - name: check dir
+      stat:
+        path: /tmp/{{ build_dir }}
+      register: dir_data
+
+    - debug: var=dir_data.stat.path
+
+    - name: create dir for python build if it doen't exist
+      file:
+        path: /tmp/{{ build_dir }}
+        state: directory
+        owner: cloud_user
+        mode: 0777
+      when: not dir_data.stat.exists
+
+  - name: donwlad python-{{ PYTHON  }}.tgz to /tmp
+    ansible.builtin.get_url:
+      url: https://www.python.org/ftp/python/{{ PYTHON }}/Python-{{ PYTHON }}.tgz
+      dest: /tmp/Python-{{ PYTHON }}.tgz
+      mode: '0777'
+    register: python_download
+
+  - name: extract python tarball
+    unarchive:
+      src: /tmp/Python-{{ PYTHON }}.tgz
+      dest: /tmp
+      mode: 0755
+    register: python_extract
+
+  - name: run python configuration
+    ansible.builtin.shell: /tmp/Python-{{ PYTHON }}/configure --enable-optimizations
+    register: python_config
+
+  - name: make python
+    shell: make altinstall
+
